@@ -12,6 +12,9 @@ namespace ControlPanel.Services {
         [DllImport("user32.dll")]
         private static extern nint GetDC(nint hWnd);
 
+        [DllImport("user32.dll")]
+        private static extern int ReleaseDC(nint hWnd, nint hDC);
+
         // Коробка цветов
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
         private struct RAMP {
@@ -43,8 +46,14 @@ namespace ControlPanel.Services {
             // Ключ от всего экрана
             nint hdc = GetDC(nint.Zero);
 
-            // Отправить ramp в Windows
-            SetDeviceGammaRamp(hdc, ref ramp);
+            try {
+                // Отправить ramp в Windows
+                SetDeviceGammaRamp(hdc, ref ramp);
+            }
+            finally {
+                // освобождение ресурсов
+                ReleaseDC(nint.Zero, hdc);
+            }
         }
     }
 }

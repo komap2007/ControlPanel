@@ -17,19 +17,19 @@ namespace ControlPanel.Services {
 
         private HwndSource? _source;
 
-        // "Коробка" для метода, который пришлет главное окно
+        // "Коробка" для метода главного окна
         private Action? _onHotkeyPressed;
 
         public bool Register(nint hwnd, Action onHotkeyPressed) {
-            // Кладем метод в коробку
+            // 1. Кладем метод главного окна в коробку
             _onHotkeyPressed = onHotkeyPressed;
             _source = HwndSource.FromHwnd(hwnd);
 
+            // 2. Говорим Windows следить за Alt+Space
             bool isRegistered = RegisterHotKey(hwnd, HOTKEY_ID, MOD_ALT, VK_SPACE);
 
             if (isRegistered)
                 _source.AddHook(WndProc);
-
             return isRegistered;
         }
 
@@ -41,11 +41,10 @@ namespace ControlPanel.Services {
 
         private nint WndProc(nint hwnd, int msg, nint wParam, nint lParam, ref bool handled) {
             if (msg == WM_HOTKEY) {
-                int hotkeyId = wParam.ToInt32();
-                if (hotkeyId == HOTKEY_ID)
-                    // Если коробка не пустая — выполняем метод из неё
+                if (wParam == (nint)HOTKEY_ID) {
                     _onHotkeyPressed?.Invoke();
-                handled = true;
+                    handled = true;
+                }
             }
             return 0;
         }
