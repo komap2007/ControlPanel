@@ -8,6 +8,7 @@ namespace ControlPanel {
     public partial class MainWindow : Window {
         // Нанимаем сервисы (они будут жить, пока живо окно)
         private readonly BrightnessService _brightness = new BrightnessService();
+        private readonly VolumeService _volume = new VolumeService();
         private readonly HotkeyService _hotkey = new HotkeyService();
         private readonly ProcessService _process = new ProcessService();
 
@@ -56,11 +57,16 @@ namespace ControlPanel {
             _brightness.SetBrightness(brightness);
         }
 
+        private void VolumeSlider_ValueChanged(object sender, System.Windows.RoutedPropertyChangedEventArgs<double> e) {
+            int volume = (int)e.NewValue;
+            if (VolumeValue != null) VolumeValue.Text = volume + "%";
+            _volume.SetVolume(volume);
+        }
+
         private void Grid_MouseDown(object sender, MouseButtonEventArgs e) {
             if (e.LeftButton == MouseButtonState.Pressed) this.DragMove();
         }
 
-        // Кнопки теперь выглядят как одна строчка!
         private void OpenBrowser_Click(object sender, RoutedEventArgs e) => _process.OpenBrowser();
         private void OpenVS_Click(object sender, RoutedEventArgs e) => _process.OpenVS();
         private void OpenCalc_Click(object sender, RoutedEventArgs e) => _process.OpenCalc();
